@@ -13,11 +13,11 @@ HƯỚNG DẪN - đọc rồi XÓA TOÀN BỘ các khối chú thích này sau k
 
 | | |
 |---|---|
-| Họ và tên | ___ |
-| MSSV | ___ |
+| Họ và tên | Lê Phan Việt Cường |
+| MSSV | 2A202602641 |
 | Lớp / Khóa | K4 |
-| Repo GitHub | https://github.com/___/___ |
-| Ngày nộp | ___ |
+| Repo GitHub | https://github.com/cuonglpv/K4-L3L4-Track2-Day21-LePhanVietCuong-2A202602641-CI-CD-for-AI-Systems |
+| Ngày nộp | 07/10/2026 |
 
 ---
 
@@ -27,13 +27,13 @@ HƯỚNG DẪN - đọc rồi XÓA TOÀN BỘ các khối chú thích này sau k
 
 | Lần chạy | n_estimators | learning_rate | max_depth | f1_score | accuracy |
 |---|---|---|---|---|---|
-| 1 | ___ | ___ | ___ | ___ | ___ |
-| 2 | ___ | ___ | ___ | ___ | ___ |
-| 3 | ___ | ___ | ___ | ___ | ___ |
+| 1 | 100 | 0.1 | 3 | 0.7109 | 0.8780 |
+| 2 | 50 | 0.05 | 2 | 0.6051 | 0.8460 |
+| 3 | 200 | 0.1 | 5 | 0.7149 | 0.8740 |
 
-**Bộ siêu tham số đã chọn:** `n_estimators=___`, `learning_rate=___`, `max_depth=___`.
+**Bộ siêu tham số đã chọn:** `n_estimators=200`, `learning_rate=0.1`, `max_depth=5`.
 
-**Lý do:** ___
+**Lý do:** Ba lần chạy được so sánh bằng F1 của lớp thu nhập cao thay vì chỉ dùng accuracy. Cấu hình 200 cây, learning rate 0,1 và độ sâu 5 đạt F1 cao nhất là 0,7149, vượt cấu hình mặc định 0,7109 và vượt xa cấu hình nông/chậm 0,6051; vì vậy nó đáp ứng ngưỡng Quality Gate 0,65. Accuracy cao nhất lại thuộc cấu hình mặc định (0,8780), không trùng với lần có F1 cao nhất (accuracy 0,8740). Điều này cho thấy accuracy chịu ảnh hưởng mạnh từ lớp thu nhập thấp chiếm đa số và không đủ để chọn mô hình. Khi giảm learning rate xuống 0,05 mà chỉ dùng 50 cây, mô hình chưa có đủ vòng boosting để học tốt, làm cả F1 lẫn accuracy giảm. Giữ learning rate 0,1 và tăng lên 200 cây, đồng thời cho cây sâu hơn, cải thiện khả năng nhận diện lớp dương.
 
 <!--
 Trả lời trong phần Lý do:

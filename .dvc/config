@@ -1,0 +1,5 @@
+[core]
+    remote = labstore
+['remote "labstore"']
+    url = gs://day21-cu0ng-2641-income-20261007/dvc
+    credentialpath = ../sa-key.json
