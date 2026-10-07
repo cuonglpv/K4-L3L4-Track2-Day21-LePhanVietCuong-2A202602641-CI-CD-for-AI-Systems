@@ -1,16 +1,5 @@
 # Báo Cáo Lab Day 21 - CI/CD cho AI Systems
 
-<!--
-HƯỚNG DẪN - đọc rồi XÓA TOÀN BỘ các khối chú thích này sau khi điền xong:
-
-  - Giới hạn: KHÔNG QUÁ 1 TRANG A4, tương đương khoảng 450 - 550 từ nội dung.
-  - Chỉ điền vào các chỗ ___ và các ô trong bảng. Không thêm mục mới.
-  - Viết bằng câu hoàn chỉnh, không gạch đầu dòng cụt lủn.
-  - Kiểm tra độ dài sau khi đã xóa hết chú thích:
-        wc -w nop-bai/bao-cao.md
-    và xem trước bản in bằng cách mở file trên GitHub rồi Ctrl+P / Cmd+P.
--->
-
 | | |
 |---|---|
 | Họ và tên | Lê Phan Việt Cường |
@@ -23,8 +12,6 @@ HƯỚNG DẪN - đọc rồi XÓA TOÀN BỘ các khối chú thích này sau k
 
 ## 1. Bộ Siêu Tham Số Đã Chọn và Lý Do
 
-<!-- Khoảng 120 - 150 từ. Điền kết quả thật từ MLflow UI ở Bước 1, tối thiểu 3 lần chạy. -->
-
 | Lần chạy | n_estimators | learning_rate | max_depth | f1_score | accuracy |
 |---|---|---|---|---|---|
 | 1 | 100 | 0.1 | 3 | 0.7109 | 0.8780 |
@@ -33,71 +20,31 @@ HƯỚNG DẪN - đọc rồi XÓA TOÀN BỘ các khối chú thích này sau k
 
 **Bộ siêu tham số đã chọn:** `n_estimators=200`, `learning_rate=0.1`, `max_depth=5`.
 
-**Lý do:** Ba lần chạy được so sánh bằng F1 của lớp thu nhập cao thay vì chỉ dùng accuracy. Cấu hình 200 cây, learning rate 0,1 và độ sâu 5 đạt F1 cao nhất là 0,7149, vượt cấu hình mặc định 0,7109 và vượt xa cấu hình nông/chậm 0,6051; vì vậy nó đáp ứng ngưỡng Quality Gate 0,65. Accuracy cao nhất lại thuộc cấu hình mặc định (0,8780), không trùng với lần có F1 cao nhất (accuracy 0,8740). Điều này cho thấy accuracy chịu ảnh hưởng mạnh từ lớp thu nhập thấp chiếm đa số và không đủ để chọn mô hình. Khi giảm learning rate xuống 0,05 mà chỉ dùng 50 cây, mô hình chưa có đủ vòng boosting để học tốt, làm cả F1 lẫn accuracy giảm. Giữ learning rate 0,1 và tăng lên 200 cây, đồng thời cho cây sâu hơn, cải thiện khả năng nhận diện lớp dương.
-
-<!--
-Trả lời trong phần Lý do:
-  - Vì sao bộ này tốt hơn các bộ còn lại (dựa trên f1_score, không phải accuracy)?
-  - Lần chạy có accuracy cao nhất có trùng với lần có f1_score cao nhất không?
-    Nếu không, điều đó nói lên điều gì?
-  - Bạn quan sát thấy đánh đổi nào giữa n_estimators và learning_rate?
--->
+**Lý do:** Tôi so sánh bằng F1 của lớp thu nhập cao. Cấu hình 200 cây, learning rate 0,1 và độ sâu 5 đạt F1 cao nhất 0,7149, cao hơn mặc định 0,7109 và nông/chậm 0,6051, nên qua Quality Gate 0,65. Accuracy cao nhất lại thuộc cấu hình mặc định (0,8780), không trùng lần có F1 cao nhất (0,8740); accuracy bị lớp thu nhập thấp chiếm đa số chi phối. Với learning rate 0,05 và chỉ 50 cây, mô hình thiếu vòng boosting nên cả F1 lẫn accuracy giảm. Tăng lên 200 cây, giữ learning rate 0,1 và cây sâu hơn giúp nhận diện lớp dương tốt hơn.
 
 ---
 
 ## 2. Vì Sao Ngưỡng Chất Lượng Đặt Trên F1 Chứ Không Phải Accuracy
 
-<!-- Khoảng 120 - 150 từ. -->
-
-___
-
-<!--
-Cần nêu được:
-  - Phân bố lớp của tập dữ liệu (tỷ lệ lớp thu nhập > 50K) và hệ quả của nó.
-  - Accuracy của một mô hình luôn trả lời "thu nhập thấp" là bao nhiêu, vì sao con số
-    đó gây hiểu nhầm.
-  - F1 của lớp dương đo điều gì mà accuracy không đo được.
-  - Vì sao KHÔNG dùng average="weighted" hay average="macro" khi gọi f1_score.
--->
+Tập Adult không cân bằng: lớp thu nhập cao (`target=1`) chiếm khoảng 24,8%. Mô hình luôn đoán thu nhập thấp vẫn có accuracy xấp xỉ 75,2% nhưng không tìm được ca dương nào, nên F1 bằng 0. F1 kết hợp precision và recall của đúng lớp quan tâm, phản ánh tốt hơn khả năng nhận diện thu nhập cao. Tôi dùng trực tiếp `f1_score(y_eval, preds)`, không dùng `average="weighted"` hay `average="macro"`, vì điểm trung bình có thể được lớp đa số kéo lên và che khuất hiệu quả trên lớp thiểu số. Do đó Quality Gate dùng F1 >= 0,65.
 
 ---
 
 ## 3. Khó Khăn Gặp Phải và Cách Giải Quyết
 
-<!-- Nêu 2 - 3 khó khăn thật, mỗi ô một câu ngắn. -->
-
 | Khó khăn | Nguyên nhân | Cách giải quyết |
 |---|---|---|
-| ___ | ___ | ___ |
-| ___ | ___ | ___ |
-| ___ | ___ | ___ |
+| Xung đột phụ thuộc Python | DVC nâng protobuf ngoài phạm vi MLflow hỗ trợ | Dùng `.venv` và khóa phiên bản trong `requirements.txt`. |
+| SSH máy cá nhân lỗi | Plink không dùng khóa GCP | Dùng SSH-in-browser và khóa ED25519 riêng cho Actions. |
+| Release health check lỗi | API khởi động lâu hơn 5 giây | Thử lại `/healthz` tối đa 30 giây. |
 
 ---
 
 ## 4. So Sánh Bước 2 và Bước 3 (bắt buộc, 2 - 3 câu)
 
-<!-- Lấy số liệu từ bảng ở mục 3.6 của tasks/buoc-3.md. -->
-
 | | f1_score | accuracy |
 |---|---|---|
-| Bước 2 (chỉ `train_batch1`) | ___ | ___ |
-| Bước 3 (thêm `train_batch2`) | ___ | ___ |
+| Bước 2 (chỉ `train_batch1`) | 0,7149 | 0,8740 |
+| Bước 3 (thêm `train_batch2`) | 0,7354 | 0,8820 |
 
-**Nhận xét:** ___
-
-<!--
-Một câu trả lời trung thực kiểu "f1 giảm 0,01 vì dữ liệu mới cùng phân phối, không mang
-thêm thông tin mới" được đánh giá cao hơn kết luận sai rằng thêm dữ liệu luôn tốt hơn.
--->
-
----
-
-## 5. Phần Bonus Đã Thực Hiện (nếu có)
-
-<!-- Xóa cả mục 5 nếu không làm bonus. Mỗi bonus tối đa 1 dòng. -->
-
-- [ ] Bonus 1 - Tracking MLflow từ xa với DagsHub: ___
-- [ ] Bonus 2 - Điều chỉnh ngưỡng quyết định: ___
-- [ ] Bonus 3 - Báo cáo precision / recall tự động: ___
-- [ ] Bonus 4 - Hoàn trả về phiên bản trước: ___
-- [ ] Bonus 5 - Cảnh báo lệch lạc dữ liệu: ___
+**Nhận xét:** Thêm 22.361 mẫu làm F1 tăng 0,0205 và accuracy tăng 0,0080. Dù kết quả tốt hơn trong lần này, hai batch cùng nguồn và phân phối nên vẫn cần theo dõi F1 qua các lần tái huấn luyện tiếp theo.
