@@ -1,0 +1,5 @@
+outs:
+- md5: b83515122e308e8cfcd7c631a384f8ed
+  size: 346
+  hash: md5
+  path: batch2_provenance.json
