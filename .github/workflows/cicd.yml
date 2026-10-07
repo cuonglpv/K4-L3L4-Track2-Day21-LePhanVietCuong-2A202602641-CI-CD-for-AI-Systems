@@ -173,8 +173,15 @@ jobs:
             #
             # Goi y:
             #   sudo systemctl restart income-api
-            #   sleep 5
-            #   curl -sf http://localhost:8080/healthz && echo "Health check passed." || exit 1
+            #   lap lai health check trong luc service khoi dong.
             sudo systemctl restart income-api
-            sleep 5
-            curl -sf http://localhost:8080/healthz && echo "Health check passed." || exit 1
+            for attempt in {1..10}; do
+              if curl -sf http://localhost:8080/healthz; then
+                echo "Health check passed."
+                exit 0
+              fi
+              echo "Waiting for API (attempt $attempt/10)..."
+              sleep 3
+            done
+            echo "Health check failed after 30 seconds."
+            exit 1
