@@ -20,13 +20,13 @@
 
 **Bộ siêu tham số đã chọn:** `n_estimators=200`, `learning_rate=0.1`, `max_depth=5`.
 
-**Lý do:** Tôi so sánh bằng F1 của lớp thu nhập cao. Cấu hình 200 cây, learning rate 0,1 và độ sâu 5 đạt F1 cao nhất 0,7149, cao hơn mặc định 0,7109 và nông/chậm 0,6051, nên qua Quality Gate 0,65. Accuracy cao nhất lại thuộc cấu hình mặc định (0,8780), không trùng lần có F1 cao nhất (0,8740); accuracy bị lớp thu nhập thấp chiếm đa số chi phối. Với learning rate 0,05 và chỉ 50 cây, mô hình thiếu vòng boosting nên cả F1 lẫn accuracy giảm. Tăng lên 200 cây, giữ learning rate 0,1 và cây sâu hơn giúp nhận diện lớp dương tốt hơn.
+**Lý do:** Tôi so sánh bằng F1 của lớp thu nhập cao. Cấu hình 200 cây, learning rate 0,1 và độ sâu 5 đạt F1 cao nhất 0,7149, cao hơn mặc định 0,7109 và nông/chậm 0,6051, nên qua Quality Gate 0,65. Accuracy cao nhất lại thuộc cấu hình mặc định (0,8780), không trùng lần có F1 cao nhất (0,8740); accuracy bị lớp thu nhập thấp chiếm đa số chi phối. Với learning rate 0,05 và chỉ 50 cây, mô hình thiếu vòng boosting nên cả F1 lẫn accuracy giảm.
 
 ---
 
 ## 2. Vì Sao Ngưỡng Chất Lượng Đặt Trên F1 Chứ Không Phải Accuracy
 
-Tập Adult không cân bằng: lớp thu nhập cao (`target=1`) chiếm khoảng 24,8%. Mô hình luôn đoán thu nhập thấp vẫn có accuracy xấp xỉ 75,2% nhưng không tìm được ca dương nào, nên F1 bằng 0. F1 kết hợp precision và recall của đúng lớp quan tâm, phản ánh tốt hơn khả năng nhận diện thu nhập cao. Tôi dùng trực tiếp `f1_score(y_eval, preds)`, không dùng `average="weighted"` hay `average="macro"`, vì điểm trung bình có thể được lớp đa số kéo lên và che khuất hiệu quả trên lớp thiểu số. Do đó Quality Gate dùng F1 >= 0,65.
+Tập Adult không cân bằng: lớp thu nhập cao (`target=1`) chiếm khoảng 24,8%. Mô hình luôn đoán thu nhập thấp vẫn có accuracy 75,2% nhưng không tìm được ca dương, nên F1 bằng 0. F1 kết hợp precision và recall của lớp quan tâm. Tôi dùng trực tiếp `f1_score(y_eval, preds)`, không dùng `average="weighted"` hay `average="macro"`, vì điểm trung bình có thể được lớp đa số kéo lên và che khuất lớp thiểu số. Do đó Quality Gate dùng F1 >= 0,65.
 
 ---
 
@@ -48,3 +48,10 @@ Tập Adult không cân bằng: lớp thu nhập cao (`target=1`) chiếm khoả
 | Bước 3 (thêm `train_batch2`) | 0,7354 | 0,8820 |
 
 **Nhận xét:** Thêm 22.361 mẫu làm F1 tăng 0,0205 và accuracy tăng 0,0080. Dù kết quả tốt hơn trong lần này, hai batch cùng nguồn và phân phối nên vẫn cần theo dõi F1 qua các lần tái huấn luyện tiếp theo.
+
+---
+
+## 5. Phần Bonus Đã Thực Hiện
+
+- [x] Bonus 3 - Tự động ghi precision/recall từng lớp, confusion matrix vào `evaluation.json` và MLflow artifact.
+- [x] Bonus 5 - So sánh tỷ lệ lớp dương train với mốc 24,8%; log cảnh báo khi lệch quá 5 điểm phần trăm.

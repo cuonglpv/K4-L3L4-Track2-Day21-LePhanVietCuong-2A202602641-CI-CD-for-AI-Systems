@@ -77,6 +77,11 @@ def test_report_file_created(tmp_path):
         report = json.load(f)
     assert "f1_score" in report
     assert "accuracy" in report
+    assert "precision" in report
+    assert "recall" in report
+    assert "confusion_matrix" in report
+    assert "data_drift_warning" in report
+    assert os.path.exists("outputs/evaluation.json")
 
 
 def test_model_file_created(tmp_path):
